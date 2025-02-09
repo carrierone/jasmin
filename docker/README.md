@@ -13,6 +13,7 @@ Jasmin is a very complete open source SMS Gateway with many enterprise-class fea
 * Supports Unicode (UTF-8) for sending out multilingual SMS
 * Supports easy creation and sending of specialized/binary SMS like mono Ringtones, WAP Push, Vcards
 * Supports concatenated SMS strings (long SMS)
+* Supports Twilio Conversations API for threaded messaging and webhooks
 * Jasmin relies heavily on message queuing through message brokers (Using AMQP), it is designed for performance, high traffic loads and full in-memory execution.
 
 ![logo](https://raw.githubusercontent.com/jookies/jasmin/master/misc/doc/sources/_static/jasmin-logo-small.png)
@@ -30,10 +31,6 @@ Start/stop daemon:
 
 ```console
 $ docker stop jasmin_01
-$ docker start jasmin_01
-```
-
-License
 =======
 
 View [license information](https://raw.githubusercontent.com/jookies/jasmin/master/LICENSE) for the software contained in this image.
