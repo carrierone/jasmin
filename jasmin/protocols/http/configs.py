@@ -32,3 +32,9 @@ class HTTPApiConfig(ConfigFile):
         # Long message splitting
         self.long_content_max_parts = self._get('http-api', 'long_content_max_parts', 5)
         self.long_content_split = self._get('http-api', 'long_content_split', 'udh')  # sar or udh
+
+        # Twilio Conversations API config
+        self.enable_conversations = self._getbool('http-api', 'enable_conversations', False)
+        self.conversations_port = self._getint('http-api', 'conversations_port', 1402)
+        self.twilio_account_sid = self._get('http-api', 'twilio_account_sid', None)
+        self.twilio_auth_token = self._get('http-api', 'twilio_auth_token', None)

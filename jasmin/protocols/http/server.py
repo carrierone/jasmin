@@ -11,6 +11,7 @@ from jasmin.protocols.http.endpoints.rate import Rate
 from jasmin.protocols.http.endpoints.ping import Ping
 from jasmin.protocols.http.endpoints.balance import Balance
 from jasmin.protocols.http.endpoints.metrics import Metrics
+from jasmin.protocols.http.endpoints.conversations import Conversations
 from jasmin.protocols.http.stats import HttpAPIStatsCollector
 
 LOG_CATEGORY = "jasmin-http-api"
@@ -50,6 +51,11 @@ class HTTPApi(Resource):
         self.putChild(b'ping', Ping(log))
         log.debug("Setting http url routing for /metrics")
         self.putChild(b'metrics', Metrics(SMPPClientManagerPB, log))
+        
+        # Add Twilio Conversations endpoint if enabled
+        if config.enable_conversations:
+            log.debug("Setting http url routing for /conversations")
+            self.putChild(b'conversations', Conversations(config, RouterPB, SMPPClientManagerPB, stats, log, interceptor))
 
     def getChild(self, name, request):
         self.log.debug("Getting child with name %s", name)
