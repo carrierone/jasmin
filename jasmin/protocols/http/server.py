@@ -52,10 +52,12 @@ class HTTPApi(Resource):
         log.debug("Setting http url routing for /metrics")
         self.putChild(b'metrics', Metrics(SMPPClientManagerPB, log))
         
-        # Add Twilio Conversations endpoint if enabled
+        # Add Twilio Conversations endpoints if enabled
         if config.enable_conversations:
             log.debug("Setting http url routing for /conversations")
             self.putChild(b'conversations', Conversations(config, RouterPB, SMPPClientManagerPB, stats, log, interceptor))
+            log.debug("Setting http url routing for /webhook")
+            self.putChild(b'webhook', ConversationWebhook(config, RouterPB, stats, log))
 
     def getChild(self, name, request):
         self.log.debug("Getting child with name %s", name)

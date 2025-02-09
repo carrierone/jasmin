@@ -73,12 +73,22 @@ class Conversations(Resource):
         if not all(field in content for field in required_fields):
             raise ValueError("Missing required fields")
 
+        # Get or create conversation thread
+        conversation_sid = content.get('conversation_sid')
+        if not conversation_sid:
+            conversation_sid = yield self._create_conversation(
+                content['to'], 
+                content['from']
+            )
+
         # Convert Twilio format to Jasmin format
         message = {
             'to': content['to'],
             'from': content['from'],
             'content': content['body'],
             'coding': 0,
+            'conversation_sid': conversation_sid,
+            'attributes': content.get('attributes', {})
         }
 
         # Use existing RouterPB to send message
@@ -87,10 +97,37 @@ class Conversations(Resource):
             connector='twilio_connector'
         )
 
+        # Store message in conversation thread
+        yield self.RouterPB.perspective_store_message(
+            conversation_sid=conversation_sid,
+            message_body=content['body'],
+            author=content['from']
+        )
+
         return {
             'status': 'queued',
-            'sid': 'JA' + base64.b32encode(os.urandom(10)).decode('ascii')
+            'conversation_sid': conversation_sid,
+            'message_sid': 'JA' + base64.b32encode(os.urandom(10)).decode('ascii')
         }
+
+    @defer.inlineCallbacks
+    def _create_conversation(self, to_addr, from_addr):
+        """Create a new conversation thread"""
+        conversation = {
+            'friendly_name': f'Conversation between {from_addr} and {to_addr}',
+            'attributes': {
+                'participants': [to_addr, from_addr],
+                'created_at': datetime.utcnow().isoformat()
+            }
+        }
+        
+        conversation_sid = 'CO' + base64.b32encode(os.urandom(10)).decode('ascii')
+        yield self.RouterPB.perspective_create_conversation(
+            conversation_sid=conversation_sid,
+            conversation=conversation
+        )
+        
+        return conversation_sid
 
     @defer.inlineCallbacks
     def _handle_receive(self, content):
